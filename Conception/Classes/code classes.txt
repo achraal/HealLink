@@ -1,0 +1,67 @@
+@startuml
+class Utilisateur {
+  +id: ObjectId
+  +nom: String
+  +prenom: String
+  +email: String
+  +motDePasse: String
+  +dateNaissance: Date
+  +role: Enum {Utilisateur, Association, Administrateur}
+  +statut: String
+  +consulterDashboard(): void
+  +faireDon(don: Don): void
+  +proposerDon(offre: Offre): void
+}
+
+class Association {
+  +id: ObjectId
+  +nom: String
+  +description: String
+  +email: String
+  +telephone: String
+  +adresse: String
+  +gererCagnotte(cagnotte: Cagnotte): void
+  +publierCampagne(campagne: Campagne): void
+}
+
+class Don {
+  +id: ObjectId
+  +typeDon: String
+  +montant: Float
+  +dateDon: Date
+  +utilisateur: Utilisateur
+  +association: Association
+}
+
+class Offre {
+  +id: ObjectId
+  +description: String
+  +typeOffre: String
+  +dateCreation: Date
+  +utilisateur: Utilisateur
+}
+
+class Campagne {
+  +id: ObjectId
+  +typeCampagne: String
+  +dateDebut: Date
+  +dateFin: Date
+  +lieu: String
+  +stockDisponible: Integer
+  +association: Association
+}
+
+class Cagnotte {
+  +id: ObjectId
+  +montantTotal: Float
+  +objectif: Float
+  +association: Association
+  +contribuer(montant: Float): void
+}
+
+Utilisateur "1" -- "*" Don : effectue >
+Utilisateur "1" -- "*" Offre : propose >
+Association "1" -- "*" Don : reçoit >
+Association "1" -- "*" Campagne : organise >
+Association "1" -- "1" Cagnotte : possède >
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+left to right direction
+skinparam actorStyle awesome
+
+actor Utilisateur
+actor Association
+actor Administrateur
+
+rectangle "Application HealLink" {
+  (S'inscrire / Se connecter) as Connexion
+  (Visualiser tableau de bord santé) as Dashboard
+  (Consulter campagnes sanitaires) as Campagnes
+  (Recevoir notifications) as Notifications
+  (Scanner code QR de dons) as ScanQR
+  (Faire un don) as FaireDon
+  (Proposer don solidaire) as ProposerDon
+  (Rechercher association) as RechercherAssoc
+  (Consulter cagnottes) as ConsulterCagnottes
+  (Gérer cagnottes) as GererCagnottes
+  (Suivre historiques dons) as SuiviDons
+  (Gérer utilisateurs et données) as GererUsers
+  (Gérer campagnes et stocks) as GererCampagnes
+}
+
+Utilisateur --> Connexion
+Utilisateur --> Dashboard
+Utilisateur --> Campagnes
+Utilisateur --> Notifications
+Utilisateur --> ScanQR
+Utilisateur --> FaireDon
+Utilisateur --> ProposerDon
+Utilisateur --> RechercherAssoc
+Utilisateur --> SuiviDons
+Utilisateur --> ConsulterCagnottes
+
+Association --> Connexion
+Association --> GererCagnottes
+Association --> RechercherAssoc
+Association --> GererCampagnes
+Association --> SuiviDons
+Association --> ConsulterCagnottes
+
+Administrateur --> GererUsers
+Administrateur --> GererCampagnes
+Administrateur --> GererCagnottes
+
+ScanQR .> FaireDon : include
+FaireDon .> SuiviDons : include
+
+@enduml

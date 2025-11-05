@@ -1,0 +1,18 @@
+@startuml
+actor Utilisateur
+participant "App Mobile" as App
+participant "API FastAPI Backend" as Backend
+participant "Base de données MongoDB" as DB
+
+Utilisateur -> App : Ouvre app et scanne code QR
+App -> Backend : Envoie données scan QR
+Backend -> DB : Vérifie validité du code QR
+DB --> Backend : Confirme validité et détails don
+Backend --> App : Données don + confirmation UI
+Utilisateur -> App : Confirme don et montant
+App -> Backend : Envoie demande don avec montant
+Backend -> DB : Enregistre don
+DB --> Backend : Confirmation enregistrement
+Backend --> App : Confirme don réussi
+App -> Utilisateur : Affiche message succès et reçu numérique
+@enduml
