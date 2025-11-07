@@ -1,13 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert, Linking } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { StatusBar } from 'expo-status-bar';
+import { useWebSocket } from '../utils/websocketProvider';
 
 export default function QrScanner() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [scannedData, setScannedData] = useState(null);
+  const scannedRef = useRef(false);
 
+  
+
+  // 3️⃣ Function to send messages
+  const { ws, userId } = useWebSocket();
+ 
   // Check if permissions are still loading
   if (!permission) {
     return (
@@ -30,36 +37,31 @@ export default function QrScanner() {
   }
 
   // Handle barcode scan
-  const handleBarCodeScanned = ({ type, data }) => {
-    setScanned(true);
+   const handleBarCodeScanned = ({ type, data }) => {
+    if (scannedRef.current) return; // debounce
+
+    scannedRef.current = true; // mark scanned
     setScannedData({ type, data });
-    
-    Alert.alert(
-      'QR Code Scanned!',
-      `Type: ${type}\nData: ${data}`,
-      [
-        {
-          text: 'Open Link',
-          onPress: () => {
-            if (data.startsWith('http://') || data.startsWith('https://')) {
-              Linking.openURL(data);
-            } else {
-              Alert.alert('Not a URL', 'The scanned code is not a web link');
-            }
-          },
-        },
-        {
-          text: 'Scan Again',
-          onPress: () => setScanned(false),
-        },
-      ]
-    );
+
+    // Send over WebSocket if open
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(data);
+      console.log('Sent:', data);
+    } else {
+      console.log('WebSocket not ready', ws?.readyState);
+      Alert.alert('WebSocket not connected');
+    }
+
+    // Reset scan after 2 seconds to allow rescanning
+    setTimeout(() => {
+      scannedRef.current = false;
+    }, 2000);
   };
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      
+
       <CameraView
         style={styles.camera}
         facing="back"

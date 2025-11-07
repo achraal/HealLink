@@ -7,12 +7,15 @@ import HomeScreen from './screens/homescrreen';
 import DetailsScreen from './screens/DetailsScreen';
 import MapScreen from './screens/map';
 import QrScanner from './screens/qrscanner';
+import { WebSocketProvider } from './utils/websocketProvider';
 
 const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
+    <WebSocketProvider>
     <NavigationContainer>
+      
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false, // hide header bar
@@ -40,5 +43,6 @@ export default function App() {
         <Tab.Screen name="Qr" component={QrScanner} />
       </Tab.Navigator>
     </NavigationContainer>
+    </WebSocketProvider>
   );
 }
