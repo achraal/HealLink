@@ -1,0 +1,90 @@
+db.campagnes.insertOne({
+  _id: ObjectId("690cfe04df9b5904dc2e11dc"),
+  nom: "Campagne Vaccination A",
+  centre: "Centre A",
+  latitude: 33.567,
+  longitude: -7.636,
+  stockVaccins: 120,
+  categorie: "Vaccination",
+  dateDebut: ISODate("2025-11-01"),
+  dateFin: ISODate("2025-11-06"),
+  pochesDeSang: 26
+});
+
+db.campagnes.insertOne({
+  _id: ObjectId("690d1760d1ebba0cf2cebea4"),
+  nom: "Campagne Vaccination Centre Ville",
+  centre: "Centre de Vaccination Ville",
+  latitude: 33.5731,
+  longitude: -7.5898,
+  stockVaccins: 120,
+  categorie: "Dépistage",
+  dateDebut: ISODate("2025-11-04"),
+  dateFin: ISODate("2025-11-09"),
+  pochesDeSang: 12
+});
+
+db.campagnes.insertOne({
+  _id: ObjectId("690d1760d1ebba0cf2cebea5"),
+  nom: "Campagne Dépistage Quartier Nord",
+  centre: "Centre de Dépistage Nord",
+  latitude: 33.5899,
+  longitude: -7.6031,
+  stockVaccins: 80,
+  categorie: "Don de Sang",
+  dateDebut: ISODate("2025-11-07"),
+  dateFin: ISODate("2025-11-12"),
+  pochesDeSang: 14
+});
+
+db.campagnes.insertOne({
+  _id: ObjectId("690d1760d1ebba0cf2cebea6"),
+  nom: "Campagne Don de Sang Hôpital Central",
+  centre: "Hôpital Central",
+  latitude: 33.5765,
+  longitude: -7.615,
+  stockVaccins: 40,
+  categorie: "Vaccination",
+  dateDebut: ISODate("2025-11-10"),
+  dateFin: ISODate("2025-11-15"),
+  pochesDeSang: 25
+});
+
+db.campagnes.insertOne({
+  _id: ObjectId("690d1760d1ebba0cf2cebea7"),
+  nom: "Campagne Vaccination Centre Est",
+  centre: "Centre de Vaccination Est",
+  latitude: 33.59,
+  longitude: -7.58,
+  stockVaccins: 30,
+  categorie: "Dépistage",
+  dateDebut: ISODate("2025-11-13"),
+  dateFin: ISODate("2025-11-18"),
+  pochesDeSang: 48
+});
+
+db.campagnes.insertOne({
+  _id: ObjectId("690d1760d1ebba0cf2cebea8"),
+  nom: "Campagne Dépistage Université",
+  centre: "Centre de Dépistage Université",
+  latitude: 33.57,
+  longitude: -7.6,
+  stockVaccins: 90,
+  categorie: "Don de Sang",
+  dateDebut: ISODate("2025-11-16"),
+  dateFin: ISODate("2025-11-21"),
+  pochesDeSang: 42
+});
+
+db.campagnes.insertOne({
+  id: "campagne10km",
+  nom: "Campagne Lointaine",
+  centre: "Centre Test Lointain",
+  latitude: 34.0242,
+  longitude: -6.8327,
+  stockVaccins: 100,
+  categorie: "Vaccination",
+  dateDebut: ISODate("2025-11-19"),
+  dateFin: ISODate("2025-11-24"),
+  pochesDeSang: 49
+});

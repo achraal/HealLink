@@ -1,22 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { View } from "react-native";
-import CampagneMap from "./components/Campagne/CampagneMap";
-import CampagneList from "./components/Campagne/CampagneList";
-import axios from "axios";
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from './src/screens/HomeScreen';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [campagnes, setCampagnes] = useState([]);
-
-  useEffect(() => {
-    axios.get("http://localhost:8000/campagnes")
-      .then(response => setCampagnes(response.data))
-      .catch(error => console.error(error));
-  }, []);
-
   return (
-    <View style={{ flex: 1 }}>
-      <CampagneMap campagnes={campagnes} />
-      <CampagneList campagnes={campagnes} />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Suivi des Campagnes" }} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
