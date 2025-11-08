@@ -252,11 +252,7 @@ export default function HomeScreen() {
           <ScrollView style={{ maxHeight: 150 }}>
             {nearbyCentres.map((centre, idx) => (
               <Text key={"nearby" + idx} style={styles.warningItem}>
-                • {centre.nom} ({centre.stockVaccins} vaccins) - {centre.distance.toFixed(2)} km{"\n"}
-                Catégorie : {centre.categorie || "N/A"}{"\n"}
-                Dates : {centre.dateDebut ? new Date(centre.dateDebut).toLocaleDateString() : "?"}{" "}
-                - {centre.dateFin ? new Date(centre.dateFin).toLocaleDateString() : "?"}{"\n"}
-                Poches de sang : {centre.pochesDeSang ?? "N/A"}
+                • {centre.nom} ({centre.stockVaccins} vaccins, {centre.pochesDeSang} poches) - {centre.distance.toFixed(2)} km{"\n"}
               </Text>
             ))}
           </ScrollView>
@@ -266,11 +262,7 @@ export default function HomeScreen() {
               <ScrollView style={{ maxHeight: 150 }}>
                 {lowStockNearbyCentres.map((centre, idx) => (
                   <Text key={"lowstock" + idx} style={styles.warningItem}>
-                    • {centre.nom} ({centre.stockVaccins} vaccins restants) - {centre.distance.toFixed(2)} km{"\n"}
-                    Catégorie : {centre.categorie || "N/A"}{"\n"}
-                    Dates : {centre.dateDebut ? new Date(centre.dateDebut).toLocaleDateString() : "?"}{" "}
-                    - {centre.dateFin ? new Date(centre.dateFin).toLocaleDateString() : "?"}{"\n"}
-                    Poches de sang : {centre.pochesDeSang ?? "N/A"}
+                    • {centre.nom} ({centre.stockVaccins} vaccins, {centre.pochesDeSang} poches) - {centre.distance.toFixed(2)} km{"\n"}
                   </Text>
                 ))}
               </ScrollView>
@@ -282,10 +274,7 @@ export default function HomeScreen() {
               <ScrollView style={{ maxHeight: 150 }}>
                 {lowBloodPouchesNearbyCentres.map((centre, idx) => (
                   <Text key={"lowblood" + idx} style={styles.warningItem}>
-                    • {centre.nom} ({centre.pochesDeSang} poches restantes) - {centre.distance.toFixed(2)} km{"\n"}
-                    Catégorie : {centre.categorie || "N/A"}{"\n"}
-                    Dates : {centre.dateDebut ? new Date(centre.dateDebut).toLocaleDateString() : "?"}{" "}
-                    - {centre.dateFin ? new Date(centre.dateFin).toLocaleDateString() : "?"}
+                    • {centre.nom} ({centre.stockVaccins} vaccins, {centre.pochesDeSang} poches) - {centre.distance.toFixed(2)} km{"\n"}
                   </Text>
                 ))}
               </ScrollView>
