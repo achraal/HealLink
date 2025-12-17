@@ -27,53 +27,71 @@ export default function CagnotteScreen() {
   }, []);
 
   const faireDon = (cagnotte) => {
-    Alert.alert(
-      "💰 Faire un don",
-      `${cagnotte.titre}\n\nCollecte actuelle: ${cagnotte.collecte.toLocaleString()} / ${cagnotte.objectif.toLocaleString()} DH\nProgression: ${cagnotte.pourcentage.toFixed(1)}%`,
-      [
-        { text: "Annuler", style: "cancel" },
-        { text: "50 DH", onPress: () => processDon(cagnotte.id, 50) },
-        { text: "100 DH", onPress: () => processDon(cagnotte.id, 100) },
-        { text: "250 DH", onPress: () => processDon(cagnotte.id, 250) },
-        { text: "Montant personnalisé", onPress: () => showCustomDon(cagnotte.id) }
-      ]
-    );
-  };
+  Alert.alert(
+    "💰 Faire un don",
+    `${cagnotte.titre}\n\nCollecte actuelle: ${cagnotte.collecte.toLocaleString()} / ${cagnotte.objectif.toLocaleString()} DH\nProgression: ${cagnotte.pourcentage.toFixed(1)}%`,
+    [
+      { text: "Annuler", style: "cancel" },
+      { text: "50 DH", onPress: () => processDon(cagnotte, 50) },
+      { text: "100 DH", onPress: () => processDon(cagnotte, 100) },
+      { text: "250 DH", onPress: () => processDon(cagnotte, 250) },
+      { text: "Montant personnalisé", onPress: () => showCustomDon(cagnotte) }
+    ]
+  );
+};
 
-  const showCustomDon = (cagnotteId) => {
-    Alert.prompt(
-      "Montant personnalisé",
-      "Entrez le montant en DH:",
-      (montantText) => {
-        const montant = parseFloat(montantText);
-        if (montant && montant > 0) {
-          processDon(cagnotteId, montant);
-        } else {
-          Alert.alert("Erreur", "Montant invalide");
-        }
-      },
-      "numeric"
-    );
-  };
 
-  const processDon = async (cagnotteId, montant) => {
-    try {
-      const response = await fetch(`http://192.168.11.112:8000/cagnottes/${cagnotteId}/don`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ montant })
-      });
-      
-      if (response.ok) {
-        Alert.alert("✅ Merci !", `Votre don de ${montant} DH a été enregistré !`);
-        fetchCagnottes(); // Refresh
+  const showCustomDon = (cagnotte) => {
+  Alert.prompt(
+    "Montant personnalisé",
+    "Entrez le montant en DH:",
+    (montantText) => {
+      const montant = parseFloat(montantText);
+      if (montant && montant > 0) {
+        processDon(cagnotte, montant);
       } else {
-        Alert.alert("❌ Erreur", "Problème lors du traitement du don");
+        Alert.alert("Erreur", "Montant invalide");
       }
-    } catch (error) {
-      Alert.alert("❌ Erreur", "Connexion impossible");
-    }
+    },
+    "plain-text",
+    "",
+    "numeric"
+  );
+};
+
+
+  const processDon = async (cagnotte, montant) => {
+  const don = {
+    id: "",                    // laissé vide, Mongo va créer _id
+    montant: montant,
+    message: null,             // ou une chaîne si tu veux ajouter un message
+    date_don: null,            // le backend mettra datetime.utcnow()
+    cagnotte_id: cagnotte.id   // important pour matcher le modèle
   };
+
+  try {
+    const response = await fetch(`http://192.168.11.112:8000/cagnottes/${cagnotte.id}/don`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(don)
+    });
+
+    const text = await response.text();
+
+    if (response.ok) {
+      Alert.alert("✅ Merci !", `Votre don de ${montant} DH a été enregistré !`);
+      fetchCagnottes(); // Refresh
+    } else {
+      console.log('DON ERROR STATUS', response.status);
+      console.log('DON ERROR BODY', text);
+      Alert.alert("❌ Erreur", `Problème lors du traitement du don (code ${response.status})`);
+    }
+  } catch (error) {
+    console.log('DON FETCH ERROR', error);
+    Alert.alert("❌ Erreur", "Connexion impossible");
+  }
+};
+
 
   const onRefresh = () => {
     setRefreshing(true);

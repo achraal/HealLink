@@ -171,26 +171,34 @@ async def create_cagnotte(cagnotte: Cagnotte):
 @app.post("/cagnottes/{cagnotte_id}/don")
 async def faire_don(cagnotte_id: str, don: Don):
     # Vérifier que la cagnotte existe
-    cagnotte = await cagnottes_collection.find_one({"_id": ObjectId(cagnotte_id)})
+    try:
+        cagnotte = await cagnottes_collection.find_one({"_id": ObjectId(cagnotte_id)})
+    except Exception:
+        raise HTTPException(status_code=400, detail="Identifiant de cagnotte invalide")
     if not cagnotte:
         raise HTTPException(status_code=404, detail="Cagnotte non trouvée")
-    
-    # Créer le don
-    don_dict = don.dict(by_alias=True)
-    don_dict["date_don"] = datetime.utcnow()
+
+    # Créer le don dans la collection dons
+    don_dict = {
+        "montant": float(don.montant),
+        "message": don.message,
+        "date_don": datetime.utcnow(),
+        "cagnotte_id": cagnotte_id,
+    }
     result_don = await dons_collection.insert_one(don_dict)
-    
-    # Mettre à jour la cagnotte
-    nouvelle_collecte = float(cagnotte.get("collecte", 0)) + don.montant
+
+    # Mettre à jour le montant collecté de la cagnotte
+    ancienne_collecte = float(cagnotte.get("collecte", 0) or 0)
+    nouvelle_collecte = ancienne_collecte + float(don.montant)
     await cagnottes_collection.update_one(
         {"_id": ObjectId(cagnotte_id)},
         {"$set": {"collecte": nouvelle_collecte}}
     )
-    
+
     return {
         "message": "Don enregistré !",
         "don_id": str(result_don.inserted_id),
-        "nouveau_collecte": nouvelle_collecte
+        "nouveau_collecte": nouvelle_collecte,
     }
 
 @app.get("/dons")
