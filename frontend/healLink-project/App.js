@@ -44,3 +44,68 @@ export default function App() {
     </WebSocketProvider>
   );
 }
+
+/*
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';  // ← CHANGÉ
+import { Ionicons } from '@expo/vector-icons';
+import HomeScreen from './src/screens/HomeScreen';
+import CagnotteScreen from './src/screens/CagnotteScreen';  // ← AJOUTÉ
+
+const Tab = createBottomTabNavigator();  // ← CHANGÉ (Tab au lieu de Stack)
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Tab.Navigator
+        initialRouteName="Home"  // ← Home par défaut
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+            
+            if (route.name === 'Home') {
+              iconName = focused ? 'location' : 'location-outline';
+            } else if (route.name === 'Cagnottes') {
+              iconName = focused ? 'cash' : 'cash-outline';
+            }
+            
+            return <Ionicons name={iconName} size={size} color={color} />;
+          },
+          tabBarActiveTintColor: '#0c5460',
+          tabBarInactiveTintColor: '#94a3b8',
+          headerShown: false,  // ← Pas d'en-tête
+          tabBarStyle: {
+            paddingBottom: 10,
+            height: 70,
+            backgroundColor: '#f8fafc',
+            borderTopWidth: 0,
+          },
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: '600',
+          },
+        })}
+      >
+        <Tab.Screen 
+          name="Home" 
+          component={HomeScreen}
+          options={{ 
+            tabBarLabel: 'Centres',
+            headerTitle: 'Suivi des Campagnes'
+          }}
+        />
+        <Tab.Screen 
+          name="Cagnottes" 
+          component={CagnotteScreen}
+          options={{ 
+            tabBarLabel: 'Cagnottes 💰',
+            headerTitle: 'Cagnottes Solidaires'
+          }}
+        />
+      </Tab.Navigator>
+    </NavigationContainer>
+  );
+}
+
+*/

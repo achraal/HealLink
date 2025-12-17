@@ -6,7 +6,7 @@ from typing import List, Optional
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 import os
-from datetime import date
+from datetime import date, datetime
 
 # Config MongoDB (ex: local ou Atlas)
 MONGO_DETAILS = os.getenv("MONGO_DETAILS", "mongodb://localhost:27017")
@@ -98,9 +98,7 @@ async def websocket_endpoint(websocket: WebSocket):
         del clients[client_id]
         print(f"❌ {client_id} disconnected")
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
 
 
@@ -201,3 +199,7 @@ async def get_dons():
     async for don in dons_collection.find().sort("date_don", -1).limit(20):
         dons.append(don_helper(don))
     return dons
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
