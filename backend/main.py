@@ -101,3 +101,103 @@ async def websocket_endpoint(websocket: WebSocket):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+
+cagnottes_collection = database.get_collection("cagnottes")
+dons_collection = database.get_collection("dons")
+
+class Cagnotte(BaseModel):
+    id: str = Field(default_factory=str, alias="_id")
+    titre: str
+    description: Optional[str] = None
+    objectif: float
+    collecte: float = 0.0
+    date_debut: Optional[date] = None
+    date_fin: Optional[date] = None
+    est_active: bool = True
+
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+
+class Don(BaseModel):
+    id: str = Field(default_factory=str, alias="_id")
+    montant: float
+    message: Optional[str] = None
+    date_don: Optional[datetime] = None
+    cagnotte_id: str
+
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+
+def cagnotte_helper(cagnotte) -> dict:
+    return {
+        "id": str(cagnotte["_id"]),
+        "titre": cagnotte.get("titre"),
+        "description": cagnotte.get("description"),
+        "objectif": float(cagnotte.get("objectif", 0)),
+        "collecte": float(cagnotte.get("collecte", 0)),
+        "pourcentage": min(100, (float(cagnotte.get("collecte", 0)) / float(cagnotte.get("objectif", 1))) * 100),
+        "date_debut": cagnotte.get("date_debut"),
+        "date_fin": cagnotte.get("date_fin"),
+        "est_active": cagnotte.get("est_active", True)
+    }
+
+def don_helper(don) -> dict:
+    return {
+        "id": str(don["_id"]),
+        "montant": float(don.get("montant")),
+        "message": don.get("message"),
+        "date_don": don.get("date_don"),
+        "cagnotte_id": str(don.get("cagnotte_id"))
+    }
+
+@app.get("/cagnottes")
+async def get_cagnottes():
+    cagnottes = []
+    async for cagnotte in cagnottes_collection.find({"est_active": {"$ne": False}}):
+        cagnottes.append(cagnotte_helper(cagnotte))
+    return cagnottes
+
+@app.post("/cagnottes")
+async def create_cagnotte(cagnotte: Cagnotte):
+    cagnotte_dict = cagnotte.dict(by_alias=True)
+    result = await cagnottes_collection.insert_one(cagnotte_dict)
+    new_cagnotte = await cagnottes_collection.find_one({"_id": result.inserted_id})
+    return cagnotte_helper(new_cagnotte)
+
+@app.post("/cagnottes/{cagnotte_id}/don")
+async def faire_don(cagnotte_id: str, don: Don):
+    # Vérifier que la cagnotte existe
+    cagnotte = await cagnottes_collection.find_one({"_id": ObjectId(cagnotte_id)})
+    if not cagnotte:
+        raise HTTPException(status_code=404, detail="Cagnotte non trouvée")
+    
+    # Créer le don
+    don_dict = don.dict(by_alias=True)
+    don_dict["date_don"] = datetime.utcnow()
+    result_don = await dons_collection.insert_one(don_dict)
+    
+    # Mettre à jour la cagnotte
+    nouvelle_collecte = float(cagnotte.get("collecte", 0)) + don.montant
+    await cagnottes_collection.update_one(
+        {"_id": ObjectId(cagnotte_id)},
+        {"$set": {"collecte": nouvelle_collecte}}
+    )
+    
+    return {
+        "message": "Don enregistré !",
+        "don_id": str(result_don.inserted_id),
+        "nouveau_collecte": nouvelle_collecte
+    }
+
+@app.get("/dons")
+async def get_dons():
+    dons = []
+    async for don in dons_collection.find().sort("date_don", -1).limit(20):
+        dons.append(don_helper(don))
+    return dons
