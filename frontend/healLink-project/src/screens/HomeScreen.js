@@ -6,8 +6,11 @@ import {
 import * as Location from "expo-location";
 import MapView, { Marker, Callout } from "react-native-maps";
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { SafeAreaView } from "react-native-safe-area-context";
+
 
 export default function HomeScreen() {
+  const [showFilters, setShowFilters] = useState(false);
   const [location, setLocation] = useState(null);
   const [centresSanitaires, setCentresSanitaires] = useState([]);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -183,57 +186,137 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={{ flex: 1, padding: 10 }}>
-      <Text style={styles.label}>Filtrer par catégorie :</Text>
-      <View style={{ flexDirection: "row", marginBottom: 10 }}>
-        {["Vaccination", "Dépistage", "Don de Sang"].map((cat) => (
+    
+      <View style={{ flex: 1 }}>
+    {/* Bouton Filtrer */}
+    <View style={styles.filterHeader}>
+  <TouchableOpacity
+    style={styles.filterToggleButton}
+    onPress={() => setShowFilters((prev) => !prev)}
+    activeOpacity={0.8}
+  >
+    <Text style={styles.filterToggleText}>
+      {showFilters ? "Masquer les filtres" : "🔍 Filtrer les campagnes"}
+    </Text>
+  </TouchableOpacity>
+</View>
+
+    {/* Bloc filtres, seulement si showFilters === true */}
+    {showFilters && (
+  <View style={styles.filtersCard}>
+    <Text style={styles.filtersTitle}>Filtres des campagnes</Text>
+
+    {/* Catégories */}
+    <Text style={styles.label}>Catégorie</Text>
+    <View style={styles.categoriesRow}>
+      {["Vaccination", "Dépistage", "Don de Sang"].map((cat) => {
+        const active = filterCategory === cat;
+        return (
           <TouchableOpacity
             key={cat}
             style={[
-              styles.filterButton,
-              filterCategory === cat && styles.filterButtonActive,
+              styles.chip,
+              active && styles.chipActive,
             ]}
-            onPress={() => setFilterCategory(filterCategory === cat ? null : cat)}
+            onPress={() =>
+              setFilterCategory(active ? null : cat)
+            }
           >
-            <Text style={[styles.filterText, filterCategory === cat && styles.filterTextActive]}>{cat}</Text>
+            <Text
+              style={[
+                styles.chipText,
+                active && styles.chipTextActive,
+              ]}
+            >
+              {cat}
+            </Text>
           </TouchableOpacity>
-        ))}
+        );
+      })}
+    </View>
+
+    {/* Recherche texte */}
+    <Text style={styles.label}>Recherche (nom ou centre)</Text>
+    <TextInput
+      placeholder="Ex: Ibn Sina, Croix Rouge..."
+      placeholderTextColor="#9ca3af"
+      style={styles.input}
+      value={searchText}
+      onChangeText={setSearchText}
+    />
+
+    {/* Dates */}
+    <View style={styles.datesRow}>
+      <View style={styles.dateCol}>
+        <Text style={styles.label}>Date début</Text>
+        <TouchableOpacity
+          style={styles.dateButton}
+          onPress={() => setShowStartDatePicker(true)}
+        >
+          <Text style={styles.dateButtonText}>
+            {filterStartDate
+              ? filterStartDate.toLocaleDateString()
+              : "Choisir"}
+          </Text>
+        </TouchableOpacity>
+        {showStartDatePicker && (
+          <DateTimePicker
+            value={filterStartDate || new Date()}
+            mode="date"
+            display="default"
+            onChange={onChangeStartDate}
+            maximumDate={filterEndDate || new Date(2100, 12, 31)}
+          />
+        )}
       </View>
 
-      <Text style={styles.label}>Recherche texte (nom ou centre) :</Text>
-      <TextInput
-        placeholder="Rechercher..."
-        style={styles.input}
-        value={searchText}
-        onChangeText={setSearchText}
-      />
-
-      <View style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 10 }}>
-        <View style={{ flex: 1, marginRight: 5 }}>
-          <Button title={filterStartDate ? filterStartDate.toLocaleDateString() : "Date début"} onPress={() => setShowStartDatePicker(true)} />
-          {showStartDatePicker && (
-            <DateTimePicker
-              value={filterStartDate || new Date()}
-              mode="date"
-              display="default"
-              onChange={onChangeStartDate}
-              maximumDate={filterEndDate || new Date(2100, 12, 31)}
-            />
-          )}
-        </View>
-        <View style={{ flex: 1, marginLeft: 5 }}>
-          <Button title={filterEndDate ? filterEndDate.toLocaleDateString() : "Date fin"} onPress={() => setShowEndDatePicker(true)} />
-          {showEndDatePicker && (
-            <DateTimePicker
-              value={filterEndDate || new Date()}
-              mode="date"
-              display="default"
-              onChange={onChangeEndDate}
-              minimumDate={filterStartDate || new Date(1900, 1, 1)}
-            />
-          )}
-        </View>
+      <View style={styles.dateCol}>
+        <Text style={styles.label}>Date fin</Text>
+        <TouchableOpacity
+          style={styles.dateButton}
+          onPress={() => setShowEndDatePicker(true)}
+        >
+          <Text style={styles.dateButtonText}>
+            {filterEndDate
+              ? filterEndDate.toLocaleDateString()
+              : "Choisir"}
+          </Text>
+        </TouchableOpacity>
+        {showEndDatePicker && (
+          <DateTimePicker
+            value={filterEndDate || new Date()}
+            mode="date"
+            display="default"
+            onChange={onChangeEndDate}
+            minimumDate={filterStartDate || new Date(1900, 1, 1)}
+          />
+        )}
       </View>
+    </View>
+
+    {/* Actions */}
+    <View style={styles.actionsRow}>
+      <TouchableOpacity
+        style={styles.resetButton}
+        onPress={() => {
+          setFilterCategory(null);
+          setSearchText("");
+          setFilterStartDate(null);
+          setFilterEndDate(null);
+        }}
+      >
+        <Text style={styles.resetText}>Réinitialiser</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.applyButton}
+        onPress={() => setShowFilters(false)}
+      >
+        <Text style={styles.applyText}>Appliquer</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+)}
+
 
       {showWarningsBanner && !showWarningsDetails && (
         <TouchableOpacity style={styles.banner} onPress={() => setShowWarningsDetails(true)}>
@@ -252,6 +335,11 @@ export default function HomeScreen() {
           <ScrollView style={{ maxHeight: 150 }}>
             {nearbyCentres.map((centre, idx) => (
               <Text key={"nearby" + idx} style={styles.warningItem}>
+                {/*• {centre.nom} ({centre.stockVaccins} vaccins) - {centre.distance.toFixed(2)} km{"\n"}
+                Catégorie : {centre.categorie || "N/A"}{"\n"}
+                Dates : {centre.dateDebut ? new Date(centre.dateDebut).toLocaleDateString() : "?"}{" "}
+                - {centre.dateFin ? new Date(centre.dateFin).toLocaleDateString() : "?"}{"\n"}
+                Poches de sang : {centre.pochesDeSang ?? "N/A"}*/}
                 • {centre.nom} ({centre.stockVaccins} vaccins, {centre.pochesDeSang} poches) - {centre.distance.toFixed(2)} km{"\n"}
               </Text>
             ))}
@@ -262,6 +350,11 @@ export default function HomeScreen() {
               <ScrollView style={{ maxHeight: 150 }}>
                 {lowStockNearbyCentres.map((centre, idx) => (
                   <Text key={"lowstock" + idx} style={styles.warningItem}>
+                    {/*• {centre.nom} ({centre.stockVaccins} vaccins restants) - {centre.distance.toFixed(2)} km{"\n"}
+                    Catégorie : {centre.categorie || "N/A"}{"\n"}
+                    Dates : {centre.dateDebut ? new Date(centre.dateDebut).toLocaleDateString() : "?"}{" "}
+                    - {centre.dateFin ? new Date(centre.dateFin).toLocaleDateString() : "?"}{"\n"}
+                    Poches de sang : {centre.pochesDeSang ?? "N/A"}*/}
                     • {centre.nom} ({centre.stockVaccins} vaccins, {centre.pochesDeSang} poches) - {centre.distance.toFixed(2)} km{"\n"}
                   </Text>
                 ))}
@@ -274,6 +367,10 @@ export default function HomeScreen() {
               <ScrollView style={{ maxHeight: 150 }}>
                 {lowBloodPouchesNearbyCentres.map((centre, idx) => (
                   <Text key={"lowblood" + idx} style={styles.warningItem}>
+                    {/*• {centre.nom} ({centre.pochesDeSang} poches restantes) - {centre.distance.toFixed(2)} km{"\n"}
+                    Catégorie : {centre.categorie || "N/A"}{"\n"}
+                    Dates : {centre.dateDebut ? new Date(centre.dateDebut).toLocaleDateString() : "?"}{" "}
+                    - {centre.dateFin ? new Date(centre.dateFin).toLocaleDateString() : "?"}*/}
                     • {centre.nom} ({centre.stockVaccins} vaccins, {centre.pochesDeSang} poches) - {centre.distance.toFixed(2)} km{"\n"}
                   </Text>
                 ))}
@@ -324,6 +421,7 @@ export default function HomeScreen() {
         })}
       </MapView>
     </View>
+    
   );
 }
 
@@ -337,6 +435,116 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: "#f9f9f9",
   },
+  filtersCard: {
+  marginHorizontal: 10,
+  marginBottom: 10,
+  padding: 16,
+  borderRadius: 16,
+  backgroundColor: "#ffffff",
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.1,
+  shadowRadius: 8,
+  elevation: 4,
+},
+
+filtersTitle: {
+  fontSize: 16,
+  fontWeight: "700",
+  color: "#0f172a",
+  marginBottom: 8,
+},
+
+categoriesRow: {
+  flexDirection: "row",
+  flexWrap: "wrap",
+  marginBottom: 12,
+},
+
+chip: {
+  paddingVertical: 6,
+  paddingHorizontal: 10,
+  borderRadius: 999,
+  borderWidth: 1,
+  borderColor: "#e5e7eb",
+  marginRight: 8,
+  marginBottom: 8,
+  backgroundColor: "#f9fafb",
+},
+
+chipActive: {
+  backgroundColor: "#0c5460",
+  borderColor: "#0c5460",
+},
+
+chipText: {
+  fontSize: 13,
+  color: "#4b5563",
+},
+
+chipTextActive: {
+  color: "#ffffff",
+  fontWeight: "600",
+},
+
+datesRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  marginTop: 4,
+},
+
+dateCol: {
+  flex: 1,
+  marginRight: 6,
+},
+
+dateButton: {
+  marginTop: 4,
+  paddingVertical: 8,
+  paddingHorizontal: 10,
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: "#e5e7eb",
+  backgroundColor: "#f9fafb",
+},
+
+dateButtonText: {
+  color: "#111827",
+  fontSize: 14,
+},
+
+actionsRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  marginTop: 16,
+},
+
+resetButton: {
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: "#e5e7eb",
+  backgroundColor: "#f9fafb",
+},
+
+resetText: {
+  color: "#6b7280",
+  fontWeight: "500",
+},
+
+applyButton: {
+  paddingVertical: 8,
+  paddingHorizontal: 16,
+  borderRadius: 8,
+  backgroundColor: "#0c5460",
+},
+
+applyText: {
+  color: "#ffffff",
+  fontWeight: "600",
+  fontSize: 14,
+},
   filterButton: {
     marginRight: 10,
     padding: 8,
@@ -373,6 +581,31 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 5,
   },
+  filterHeader: {
+  paddingHorizontal: 10,
+  paddingTop: 0,
+  },
+filterToggleButton: {
+  width: "100%",           // occupe toute la largeur
+  backgroundColor: "#0c5460",
+  paddingVertical: 12,
+  borderRadius: 12,
+  alignItems: "center",
+  justifyContent: "center",
+},
+  filterToggleText: {
+  color: "#fff",
+  fontWeight: "600",
+  fontSize: 16,
+  },
+  filtersContainer: {
+  paddingHorizontal: 10,
+  paddingBottom: 10,
+  },
+  label: {
+  fontWeight: "600",
+  marginBottom: 4,
+  },
   warningItem: {
     marginLeft: 10,
     marginBottom: 10,
@@ -387,5 +620,3 @@ const styles = StyleSheet.create({
   },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
 });
-
-// Tous le code ci-dessus est specialement pour la fonctionnaité campagnes d'achraf //
