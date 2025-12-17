@@ -7,10 +7,12 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
+    <WebSocketProvider>
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Suivi des Campagnes" }} />
       </Stack.Navigator>
     </NavigationContainer>
+    </WebSocketProvider>
   );
 }
