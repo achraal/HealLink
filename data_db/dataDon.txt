@@ -1,0 +1,37 @@
+db.dons.insertMany([
+  {
+    _id: ObjectId("6942e1eb684da91229be7599"),
+    montant: 200,
+    message: "Solidarité nationale",
+    date_don: ISODate("2025-12-17T14:15:00.000Z"),
+    cagnotte_id: ObjectId("6942e180684da91229be7595")
+  },
+  {
+    _id: ObjectId("6942e1eb684da91229be759a"),
+    montant: 300,
+    message: "",
+    date_don: ISODate("2025-12-17T11:20:00.000Z"),
+    cagnotte_id: ObjectId("6942e180684da91229be7595")
+  },
+  {
+    _id: ObjectId("6942e1eb684da91229be759b"),
+    montant: 100,
+    message: "Petit don grand cœur",
+    date_don: ISODate("2025-12-17T16:45:00.000Z"),
+    cagnotte_id: ObjectId("6942e180684da91229be7596")
+  },
+  {
+    _id: ObjectId("6942e1eb684da91229be759c"),
+    montant: 1500,
+    message: "Don anonyme généreux",
+    date_don: ISODate("2025-12-16T15:30:00.000Z"),
+    cagnotte_id: ObjectId("6942e180684da91229be7594")
+  },
+  {
+    _id: ObjectId("6942f56cf2575d96303269a4"),
+    montant: 50,
+    message: null,
+    date_don: ISODate("2025-12-17T18:24:44.662Z"),
+    cagnotte_id: ObjectId("6942e180684da91229be7594")
+  }
+])
