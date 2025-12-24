@@ -1,50 +1,32 @@
-db.campagnes.insertMany([
+db.cagnottes.insertMany([
   {
-    _id: ObjectId("690cfe04df9b5904dc2e11dc"),
-    nom: "Campagne Vaccination A",
-    centre: "Centre A",
-    latitude: 33.567,
-    longitude: -7.636,
-    stockVaccins: 120,
-    categorie: "Vaccination",
-    dateDebut: ISODate("2025-11-01T00:00:00.000Z"),
-    dateFin: ISODate("2025-11-06T00:00:00.000Z"),
-    pochesDeSang: 26
+    _id: ObjectId("6942e180684da91229be7594"),
+    titre: "Urgence Vaccins Nationaux",
+    description: "Achat 5000 doses pour campagne hivernale Maroc",
+    objectif: 100000,
+    collecte: 58600,
+    date_debut: ISODate("2025-12-15T00:00:00.000Z"),
+    date_fin: ISODate("2026-01-15T00:00:00.000Z"),
+    est_active: true
   },
   {
-    _id: ObjectId("690d1760d1ebba0cf2cebea4"),
-    nom: "Campagne Vaccination Centre Ville",
-    centre: "Centre de Vaccination Ville",
-    latitude: 33.5731,
-    longitude: -7.5898,
-    stockVaccins: 120,
-    categorie: "Dépistage",
-    dateDebut: ISODate("2025-11-04T00:00:00.000Z"),
-    dateFin: ISODate("2025-11-09T00:00:00.000Z"),
-    pochesDeSang: 8
+    _id: ObjectId("6942e180684da91229be7595"),
+    titre: "Réserve Sang O- Critique",
+    description: "Stock national critique ! Groupe O- urgent",
+    objectif: 50000,
+    collecte: 14450,
+    date_debut: ISODate("2025-12-17T00:00:00.000Z"),
+    date_fin: ISODate("2025-12-31T00:00:00.000Z"),
+    est_active: true
   },
   {
-    _id: ObjectId("690d1760d1ebba0cf2cebea5"),
-    nom: "Campagne Dépistage Quartier Nord",
-    centre: "Centre de Dépistage Nord",
-    latitude: 33.5899,
-    longitude: -7.6031,
-    stockVaccins: 80,
-    categorie: "Don de Sang",
-    dateDebut: ISODate("2025-11-07T00:00:00.000Z"),
-    dateFin: ISODate("2025-11-12T00:00:00.000Z"),
-    pochesDeSang: 14
-  },
-  {
-    _id: ObjectId("690d1760d1ebba0cf2cebea6"),
-    nom: "Campagne Don de Sang Hôpital Central",
-    centre: "Hôpital Central",
-    latitude: 33.5765,
-    longitude: -7.615,
-    stockVaccins: 40,
-    categorie: "Vaccination",
-    dateDebut: ISODate("2025-11-10T00:00:00.000Z"),
-    dateFin: ISODate("2025-11-15T00:00:00.000Z"),
-    pochesDeSang: 25
+    _id: ObjectId("6942e180684da91229be7596"),
+    titre: "Tests Rapides COVID",
+    description: "Équiper 50 centres de dépistage rapide",
+    objectif: 25000,
+    collecte: 8400,
+    date_debut: ISODate("2025-12-20T00:00:00.000Z"),
+    date_fin: ISODate("2026-02-20T00:00:00.000Z"),
+    est_active: true
   }
 ])
