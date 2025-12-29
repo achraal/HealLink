@@ -11,7 +11,7 @@ export default function CagnotteScreen() {
 
   const fetchCagnottes = async () => {
     try {
-      const response = await fetch("http://192.168.11.112:8000/cagnottes");
+      const response = await fetch("http://192.168.11.124:8000/cagnottes");
       const data = await response.json();
       setCagnottes(data);
     } catch (error) {
@@ -70,7 +70,7 @@ export default function CagnotteScreen() {
   };
 
   try {
-    const response = await fetch(`http://192.168.11.112:8000/cagnottes/${cagnotte.id}/don`, {
+    const response = await fetch(`http://192.168.11.124:8000/cagnottes/${cagnotte.id}/don`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(don)

@@ -7,7 +7,8 @@ import * as Location from "expo-location";
 import MapView, { Marker, Callout } from "react-native-maps";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { signOut } from "firebase/auth";
+import { auth } from "../config/firebaseConfig";
 
 export default function HomeScreen() {
   const [showFilters, setShowFilters] = useState(false);
@@ -31,6 +32,15 @@ export default function HomeScreen() {
   const STOCK_SEUIL = 50;
   const DISTANCE_SEUIL_KM = 5;
   const POCHES_SANG_SEUIL = 10;
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      Alert.alert('Déconnexion', 'Vous avez été déconnecté avec succès');
+    } catch (error) {
+      Alert.alert('Erreur', error.message);
+    }
+  };
 
   function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
     const R = 6371;
@@ -93,7 +103,7 @@ export default function HomeScreen() {
       setLocation(loc.coords);
 
       try {
-        const response = await fetch("http://192.168.11.112:8000/campagnes");
+        const response = await fetch("http://192.168.11.124:8000/campagnes");
         if (!response.ok) throw new Error("Erreur API");
         const data = await response.json();
         setCentresSanitaires(data);
@@ -186,20 +196,30 @@ export default function HomeScreen() {
   }
 
   return (
-    
-      <View style={{ flex: 1 }}>
-    {/* Bouton Filtrer */}
-    <View style={styles.filterHeader}>
-  <TouchableOpacity
-    style={styles.filterToggleButton}
-    onPress={() => setShowFilters((prev) => !prev)}
-    activeOpacity={0.8}
-  >
-    <Text style={styles.filterToggleText}>
-      {showFilters ? "Masquer les filtres" : "🔍 Filtrer les campagnes"}
-    </Text>
-  </TouchableOpacity>
-</View>
+  
+    <View style={{ flex: 1 }}>
+      {/* Header avec filtres et déconnexion */}
+      <View style={styles.headerRow}>
+        <View style={styles.filterHeader}>
+          <TouchableOpacity
+            style={styles.filterToggleButton}
+            onPress={() => setShowFilters((prev) => !prev)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.filterToggleText}>
+              {showFilters ? "Masquer les filtres" : "🔍 Filtrer"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity 
+          style={styles.logoutButton} 
+          onPress={handleLogout}
+        >
+          <Text style={styles.logoutText}>🚪</Text>
+        </TouchableOpacity>
+      </View>
+
 
     {/* Bloc filtres, seulement si showFilters === true */}
     {showFilters && (
@@ -421,7 +441,6 @@ export default function HomeScreen() {
         })}
       </MapView>
     </View>
-    
   );
 }
 
@@ -454,7 +473,29 @@ filtersTitle: {
   color: "#0f172a",
   marginBottom: 8,
 },
+headerRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingHorizontal: 10,
+  paddingTop: 10,
+  paddingBottom: 5,
+},
 
+  logoutButton: {
+  backgroundColor: '#dc2626',
+  paddingVertical: 12,
+  paddingHorizontal: 20,
+  borderRadius: 12,
+  marginLeft: 5,
+  minWidth: 120,  // Largeur minimum pour le bouton
+  alignItems: 'center',
+},
+
+  logoutText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
+  },
 categoriesRow: {
   flexDirection: "row",
   flexWrap: "wrap",
@@ -582,8 +623,8 @@ applyText: {
     marginBottom: 5,
   },
   filterHeader: {
-  paddingHorizontal: 10,
-  paddingTop: 0,
+  flex: 1,  // Prend tout l'espace disponible
+  paddingRight: 5,
   },
 filterToggleButton: {
   width: "100%",           // occupe toute la largeur

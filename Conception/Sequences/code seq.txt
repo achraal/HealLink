@@ -1,18 +1,52 @@
-@startuml
-actor Utilisateur
-participant "App Mobile" as App
-participant "API FastAPI Backend" as Backend
-participant "Base de données MongoDB" as DB
+@startuml healLink_sequence_don
+!theme plain
+skinparam sequenceArrowThickness 2
+skinparam participant {
+  BackgroundColor #E3F2FD
+  BorderColor #1976D2
+}
 
-Utilisateur -> App : Ouvre app et scanne code QR
-App -> Backend : Envoie données scan QR
-Backend -> DB : Vérifie validité du code QR
-DB --> Backend : Confirme validité et détails don
-Backend --> App : Données don + confirmation UI
-Utilisateur -> App : Confirme don et montant
-App -> Backend : Envoie demande don avec montant
-Backend -> DB : Enregistre don
-DB --> Backend : Confirmation enregistrement
-Backend --> App : Confirme don réussi
-App -> Utilisateur : Affiche message succès et reçu numérique
+title **HealLink** - Faire un Don
+
+actor Utilisateur
+participant "React Native" as App
+participant "Backend\nFastAPI" as Backend
+database "MongoDB\nhealLinkDB" as DB
+participant "Firebase Auth" as Firebase
+
+Utilisateur -> App: Ouvre CagnotteScreen
+App -> Backend: GET /cagnottes
+Backend -> DB: find({est_active: true})
+DB --> Backend: Liste cagnottes
+Backend --> App: JSON cagnottes[]
+App --> Utilisateur: Affiche liste + progression
+
+Utilisateur -> App: Clique "Faire don" (50/100/250 DH)
+App -> App: Alert avec options montant
+Utilisateur -> App: Choisit montant (ex: 100 DH)
+
+App -> Backend: POST /cagnottes/{id}/don\n{"montant": 100, "message": null}
+Backend -> DB: findOne({_id: ObjectId(id)})
+DB --> Backend: Cagnotte existante
+alt Cagnotte trouvée
+    Backend -> DB: insertOne(don)
+    Backend -> DB: updateOne({collecte: +100})
+    DB --> Backend: OK
+    Backend --> App: {"message": "Don enregistré!", "don_id": "..."}
+else Cagnotte non trouvée
+    Backend --> App: 404 "Cagnotte non trouvée"
+end
+
+App -> App: Alert "Merci !"
+App -> Backend: GET /cagnottes (refresh)
+Backend -> DB: find()
+DB --> Backend: Cagnottes mises à jour
+Backend --> App: JSON avec nouvelle collecte
+App --> Utilisateur: Liste refreshée
+
+note over Backend, DB
+  WebSocket notif en parallèle :
+  → poke autres utilisateurs connectés
+end note
+
 @enduml

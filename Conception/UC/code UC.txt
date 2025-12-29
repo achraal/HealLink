@@ -1,50 +1,77 @@
-@startuml
-left to right direction
-skinparam actorStyle awesome
-
-actor Utilisateur
-actor Association
-actor Administrateur
-
-rectangle "Application HealLink" {
-  (S'inscrire / Se connecter) as Connexion
-  (Visualiser tableau de bord santé) as Dashboard
-  (Consulter campagnes sanitaires) as Campagnes
-  (Recevoir notifications) as Notifications
-  (Scanner code QR de dons) as ScanQR
-  (Faire un don) as FaireDon
-  (Proposer don solidaire) as ProposerDon
-  (Rechercher association) as RechercherAssoc
-  (Consulter cagnottes) as ConsulterCagnottes
-  (Gérer cagnottes) as GererCagnottes
-  (Suivre historiques dons) as SuiviDons
-  (Gérer utilisateurs et données) as GererUsers
-  (Gérer campagnes et stocks) as GererCampagnes
+@startuml healLink_usecases_vertical
+!theme plain
+skinparam usecase {
+  BackgroundColor #E3F2FD
+  BorderColor #1976D2
+}
+skinparam actor {
+  BackgroundColor #FFF3E0
+  BorderColor #F57C00
+}
+skinparam rectangle {
+  BackgroundColor white
 }
 
-Utilisateur --> Connexion
-Utilisateur --> Dashboard
-Utilisateur --> Campagnes
-Utilisateur --> Notifications
-Utilisateur --> ScanQR
-Utilisateur --> FaireDon
-Utilisateur --> ProposerDon
-Utilisateur --> RechercherAssoc
-Utilisateur --> SuiviDons
-Utilisateur --> ConsulterCagnottes
+title **HealLink** - Diagramme de Cas d'Utilisation
 
-Association --> Connexion
-Association --> GererCagnottes
-Association --> RechercherAssoc
-Association --> GererCampagnes
-Association --> SuiviDons
-Association --> ConsulterCagnottes
+left to right direction
 
-Administrateur --> GererUsers
-Administrateur --> GererCampagnes
-Administrateur --> GererCagnottes
+actor "Utilisateur\nconnecté" as user
+actor "Visiteur\nanonyme" as guest
 
-ScanQR .> FaireDon : include
-FaireDon .> SuiviDons : include
+rectangle " HealLink App" {
+  (S'authentifier)
+  (S'inscrire) 
+  (Réinitialiser\nmot de passe)
+  (Se déconnecter)
+  
+  (Consulter\ncampagnes médicales)
+  (Filtrer\ncampagnes)
+  (Recevoir\nalertes stock)
+  (Visualiser\nsur carte)
+  
+  (Consulter\ncagnottes)
+  (Faire un don)
+  
+  (Générer\nQR Code)
+  (Scanner\nQR Code)
+  (Recevoir\nnotification)
+}
+
+user -down-> (S'authentifier)
+user -down-> (S'inscrire)
+guest -down-> (S'authentifier)
+guest -down-> (S'inscrire)
+user -down-> (Réinitialiser\nmot de passe)
+user -down-> (Se déconnecter)
+
+user -down-> (Consulter\ncampagnes médicales)
+user --> (Filtrer\ncampagnes) : <<extend>>
+user --> (Recevoir\nalertes stock) : <<include>>
+user -down-> (Visualiser\nsur carte)
+
+user -down-> (Consulter\ncagnottes)
+user -down-> (Faire un don)
+
+user -down-> (Générer\nQR Code)
+user -down-> (Scanner\nQR Code)
+user <.. (Recevoir\nnotification) : <<extend>>
+
+note right of (S'authentifier)
+  **LoginScreen**
+  Email/Password
+end note
+
+note right of (Faire un don)
+  **CagnotteScreen**
+  50/100/250 DH
+  ou personnalisé
+end note
+
+note right of (Scanner\nQR Code)
+  **QrScanner**
+  Poke utilisateur
+  via WebSocket
+end note
 
 @enduml

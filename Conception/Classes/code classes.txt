@@ -1,67 +1,83 @@
-@startuml
+@startuml healLink_classes
+!theme plain
+skinparam classAttributeIconSize 0
+
+title HealLink - Diagramme Classes
+
 class Utilisateur {
-  +id: ObjectId
-  +nom: String
-  +prenom: String
-  +email: String
-  +motDePasse: String
-  +dateNaissance: Date
-  +role: Enum {Utilisateur, Association, Administrateur}
-  +statut: String
-  +consulterDashboard(): void
-  +faireDon(don: Don): void
-  +proposerDon(offre: Offre): void
-}
-
-class Association {
-  +id: ObjectId
-  +nom: String
-  +description: String
-  +email: String
-  +telephone: String
-  +adresse: String
-  +gererCagnotte(cagnotte: Cagnotte): void
-  +publierCampagne(campagne: Campagne): void
-}
-
-class Don {
-  +id: ObjectId
-  +typeDon: String
-  +montant: Float
-  +dateDon: Date
-  +utilisateur: Utilisateur
-  +association: Association
-}
-
-class Offre {
-  +id: ObjectId
-  +description: String
-  +typeOffre: String
-  +dateCreation: Date
-  +utilisateur: Utilisateur
+  -uid : String (Firebase ID utilisateur)
+  -email : String (Identifiant)
+  -createdAt : DateTime (Date de création)
+  -lastSignIn : DateTime (Dernière connexion)
 }
 
 class Campagne {
-  +id: ObjectId
-  +typeCampagne: String
-  +dateDebut: Date
-  +dateFin: Date
-  +lieu: String
-  +stockDisponible: Integer
-  +association: Association
+  -id : ObjectId
+  -nom : String
+  -centre : String
+  -latitude : float
+  -longitude : float
+  -stockVaccins : int
+  -categorie : String
+  -dateDebut : Date
+  -dateFin : Date
+  -pochesDeSang : int
 }
 
 class Cagnotte {
-  +id: ObjectId
-  +montantTotal: Float
-  +objectif: Float
-  +association: Association
-  +contribuer(montant: Float): void
+  -id : ObjectId
+  -titre : String
+  -description : String
+  -objectif : float
+  -collecte : float
+  -date_debut : Date
+  -date_fin : Date
+  -est_active : boolean
+  +contribuer(montant: float)
 }
 
-Utilisateur "1" -- "*" Don : effectue >
-Utilisateur "1" -- "*" Offre : propose >
-Association "1" -- "*" Don : reçoit >
-Association "1" -- "*" Campagne : organise >
-Association "1" -- "1" Cagnotte : possède >
+class Don {
+  -id : ObjectId
+  -montant : float
+  -message : String
+  -date_don : DateTime
+  -cagnotte_id : String
+}
+
+class WebSocketClient {
+  -client_id : String (UUID généré backend)
+  -websocket : WebSocket
+  +send_json(payload: JSON)
+  +receive_text()
+  +on_welcome(userID: String)
+  +on_poke()
+}
+
+' Relations métier PURES
+Utilisateur "1" ||-- "0..*" Don : effectue
+Cagnotte "1" ||-- "0..*" Don : reçoit
+
+note right of Utilisateur
+  Authentification Firebase
+  (email/password)
+end note
+
+note right of WebSocketClient
+  Système "poke" entre utilisateurs :
+  • Backend assigne client_id (UUID)
+  • Frontend envoie client_id cible
+  → Backend poke l'utilisateur cible
+  → Alert "Success" React Native
+end note
+
+note right of Don
+  cagnotte_id : String (référence)
+  date_don générée backend (UTC)
+end note
+
+note bottom of Cagnotte
+  pourcentage calculé :
+  min(100, (collecte/objectif)*100)
+end note
+
 @enduml
