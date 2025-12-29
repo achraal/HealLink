@@ -107,7 +107,7 @@ export default function LoginScreen({ navigation }) {
           <View style={styles.dividerLine} />
         </View>
 
-        {/* ✅ Bouton Google */}
+        {/* Bouton Google */}
         { /*<TouchableOpacity 
           style={styles.googleButton}
           onPress={handleGoogleSignIn}
