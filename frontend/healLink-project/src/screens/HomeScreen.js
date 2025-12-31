@@ -103,7 +103,7 @@ export default function HomeScreen() {
       setLocation(loc.coords);
 
       try {
-        const response = await fetch("http://192.168.11.124:8000/campagnes");
+        const response = await fetch("http://192.168.11.132:8000/campagnes");
         if (!response.ok) throw new Error("Erreur API");
         const data = await response.json();
         setCentresSanitaires(data);

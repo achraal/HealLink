@@ -1,4 +1,4 @@
-@startuml healLink_usecases_vertical
+@startuml healLink_usecases_fixed
 !theme plain
 skinparam usecase {
   BackgroundColor #E3F2FD
@@ -16,59 +16,55 @@ title **HealLink** - Diagramme de Cas d'Utilisation
 
 left to right direction
 
-actor "Utilisateur\nconnecté" as user
-actor "Visiteur\nanonyme" as guest
+actor "Utilisateur\n(authentifié)" as user
 
-rectangle " HealLink App" {
-  (S'authentifier)
-  (S'inscrire) 
-  (Réinitialiser\nmot de passe)
-  (Se déconnecter)
-  
-  (Consulter\ncampagnes médicales)
-  (Filtrer\ncampagnes)
-  (Recevoir\nalertes stock)
-  (Visualiser\nsur carte)
-  
-  (Consulter\ncagnottes)
-  (Faire un don)
-  
-  (Générer\nQR Code)
-  (Scanner\nQR Code)
-  (Recevoir\nnotification)
+rectangle "HealLink App" {
+
+  (Consulter\ncampagnes médicales) as UC_Camp
+  (Filtrer\ncampagnes) as UC_Filter
+  (Visualiser\nsur carte) as UC_Map
+  (Consulter\nstocks) as UC_Stock
+
+  (Consulter\ncagnottes) as UC_Cag
+  (Faire un don) as UC_Don
+
+  (Générer\nQR Code) as UC_QRGen
+  (Scanner\nQR Code) as UC_QRScan
+  (Recevoir\nnotification - poke) as UC_Poke
+
+  (Se déconnecter) as UC_Logout
+  (Réinitialiser\nmot de passe) as UC_Reset
 }
 
-user -down-> (S'authentifier)
-user -down-> (S'inscrire)
-guest -down-> (S'authentifier)
-guest -down-> (S'inscrire)
-user -down-> (Réinitialiser\nmot de passe)
-user -down-> (Se déconnecter)
-
-user -down-> (Consulter\ncampagnes médicales)
-user --> (Filtrer\ncampagnes) : <<extend>>
-user --> (Recevoir\nalertes stock) : <<include>>
-user -down-> (Visualiser\nsur carte)
-
-user -down-> (Consulter\ncagnottes)
-user -down-> (Faire un don)
-
-user -down-> (Générer\nQR Code)
-user -down-> (Scanner\nQR Code)
-user <.. (Recevoir\nnotification) : <<extend>>
-
-note right of (S'authentifier)
-  **LoginScreen**
-  Email/Password
+note top of user
+Précondition globale :
+Utilisateur authentifié via Firebase
 end note
 
-note right of (Faire un don)
+user --> UC_Camp
+UC_Camp --> UC_Filter : <<extend>>
+UC_Camp --> UC_Map : <<include>>
+UC_Camp --> UC_Stock : <<include>>
+
+user --> UC_Cag
+user --> UC_Don
+UC_Don --> UC_Cag : <<include>>
+
+user --> UC_QRGen
+user --> UC_QRScan
+UC_QRScan --> UC_Poke : <<include>>
+user --> UC_Poke
+
+user --> UC_Logout
+user --> UC_Reset
+
+note right of UC_Don
   **CagnotteScreen**
   50/100/250 DH
   ou personnalisé
 end note
 
-note right of (Scanner\nQR Code)
+note right of UC_QRScan
   **QrScanner**
   Poke utilisateur
   via WebSocket

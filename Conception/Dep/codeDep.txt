@@ -1,0 +1,51 @@
+@startuml HealLink_Architecture_V1
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam ranksep 80
+skinparam nodesep 60
+
+title HealLink - Diagramme de déploiement
+
+node "Client Mobile" as mobile {
+  component "Application Mobile\n(React Native + Expo)" as app
+  component "Module QR Code\n(generation + scan)" as qr
+  component "WebSocket Provider\n(Context)" as wsclient
+}
+
+node "Backend Applicatif" as backend {
+  component "API REST\n(FastAPI)" as api
+  component "Service WebSocket\n(temps reel)" as ws
+  component "Logique Metier\n(campagnes, cagnottes, dons)" as logic
+}
+
+database "MongoDB\n(healLinkDB)" as mongo
+
+cloud "Firebase" as firebase {
+  component "Firebase Authentication" as fbauth
+}
+
+' Disposition en X
+mobile -right-> firebase
+mobile -right-> backend
+backend -down-> mongo
+firebase -down-> backend
+
+' Flux internes
+app --> fbauth : Inscription/Connexion\n(email/password)
+app --> api : Requetes HTTP JSON\n(GET/POST)
+api --> logic : Orchestration metier
+logic --> mongo : Lecture/Ecriture\n(campagnes, cagnottes, dons)
+
+wsclient --> ws : WebSocket\n(poke / notification)
+ws --> wsclient : Messages JSON\n(welcome, poke)
+
+qr --> wsclient : Envoie ID scanne
+qr --> app : Affiche QR ID utilisateur
+
+note right of ws
+Messages:
+- welcome: userID
+- poke: notification interne
+end note
+
+@enduml
