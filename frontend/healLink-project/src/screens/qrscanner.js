@@ -4,13 +4,13 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { StatusBar } from 'expo-status-bar';
 import { useWebSocket } from '../utils/websocketProvider';
 
-export default function QrScanner() {
+export default function QrScanner({user}) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [scannedData, setScannedData] = useState(null);
   const scannedRef = useRef(false);
 
-  
+  console.log("User:", user.email);
 
   // 3️⃣ Function to send messages
   const { ws, userId } = useWebSocket();
@@ -44,9 +44,14 @@ export default function QrScanner() {
     setScannedData({ type, data });
 
     // Send over WebSocket if open
+    const message = {
+      target : data,
+      email : user.email
+    };
+    const messageString = JSON.stringify(message);
     if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(data);
-      console.log('Sent:', data);
+      ws.send(messageString);
+      console.log('Sent:', messageString);
     } else {
       console.log('WebSocket not ready', ws?.readyState);
       Alert.alert('WebSocket not connected');

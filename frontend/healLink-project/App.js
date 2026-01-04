@@ -24,7 +24,7 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 // Navigation par onglets pour les utilisateurs authentifiés
-function MainTabs() {
+function MainTabs({user}) {
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -96,22 +96,19 @@ function MainTabs() {
       />
 
       <Tab.Screen
-        name="Qr scan"
-        component={QrScanner}
-        options={{
-          tabBarLabel: 'Scan QR',
-          title: 'HealLink – Scan QR',
-          headerTitleAlign: 'center',
-          headerStyle: {
-            backgroundColor: '#0c5460',
-          },
-          headerTintColor: '#ffffff',
-          headerTitleStyle: {
-            fontWeight: '700',
-            fontSize: 18,
-          },
-        }}
-      />
+  name="Qr scan"
+  options={{
+    tabBarLabel: 'Scan QR',
+    title: 'HealLink – Scan QR',
+    headerTitleAlign: 'center',
+    headerStyle: { backgroundColor: '#0c5460' },
+    headerTintColor: '#ffffff',
+    headerTitleStyle: { fontWeight: '700', fontSize: 18 },
+  }}
+>
+  {(props) => <QrScanner {...props} user={user} />}
+</Tab.Screen>
+
 
       <Tab.Screen
         name="Qr"
@@ -159,7 +156,8 @@ export default function App() {
         <NavigationContainer>
           {user ? (
             // Utilisateur connecté : afficher les onglets
-            <MainTabs />
+            <MainTabs user={user} />
+
           ) : (
             // Utilisateur non connecté : afficher les écrans d'authentification
             <Stack.Navigator 
