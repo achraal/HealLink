@@ -18,6 +18,8 @@
 - [Environment Variables](#environment-variables)
 - [Development Workflow](#development-workflow)
 - [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License & Contact](#license--contact)
 
 ---
 
@@ -206,7 +208,25 @@ EXPO_PUBLIC_FIREBASE_APP_ID=1:12345:web:abcde
 
 ---
 
+## Contributing 🧩
+
+Contributions are welcome! Please:
+
+1. Fork the repo
+2. Create a branch for your feature/fix
+3. Open a PR describing the change
+
+Add tests and keep changes focused.
+
+---
+
+## License & Contact 📬
+
+This project can be licensed under **MIT** (or choose your preferred license).
+
+For questions or contribution discussions, open issues or contact the repository owner.
+
+---
 
 Thank you for using HealLink! 💙
-
 
