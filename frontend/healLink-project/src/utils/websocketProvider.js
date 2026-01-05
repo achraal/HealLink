@@ -10,8 +10,6 @@ export const WebSocketProvider = ({ children }) => {
     const [ws, setWs] = useState(null);
     const [userId, setUserId] = useState(null);
 
-
-
     // 1️⃣ Create WebSocket when the screen mounts
     useEffect(() => {
         const socket = new WebSocket("ws://192.168.11.132:8000/ws"); // Replace with your IP
@@ -20,7 +18,6 @@ export const WebSocketProvider = ({ children }) => {
             console.log("✅ Connected to WebSocket server");
 
         };
-
 
         socket.onmessage = (event) => {
             console.log("📩 Received:", event.data);
