@@ -32,6 +32,7 @@ export default function HomeScreen() {
   const STOCK_SEUIL = 50;
   const DISTANCE_SEUIL_KM = 5;
   const POCHES_SANG_SEUIL = 10;
+  const ip = "192.168.100.30";
 
   const handleLogout = async () => {
     try {
@@ -103,7 +104,7 @@ export default function HomeScreen() {
       setLocation(loc.coords);
 
       try {
-        const response = await fetch("http://192.168.11.132:8000/campagnes");
+        const response = await fetch("http://"+ip+":8000/campagnes");
         if (!response.ok) throw new Error("Erreur API");
         const data = await response.json();
         setCentresSanitaires(data);

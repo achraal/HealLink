@@ -12,6 +12,9 @@ dist/
 web-build/
 expo-env.d.ts
 
+
+heallink-project-firebase-adminsdk-fbsvc-7de9de9fb6.json
+
 # Native
 .kotlin/
 *.orig.*

@@ -4,17 +4,86 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { StatusBar } from 'expo-status-bar';
 import { useWebSocket } from '../utils/websocketProvider';
 
-export default function QrScanner() {
+export default function QrScanner({ user }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [scannedData, setScannedData] = useState(null);
   const scannedRef = useRef(false);
+  const [qrVisible, setQrVisible] = useState(false);
+  const [selectedCagnotte, setSelectedCagnotte] = useState(null);
+  const ip = "192.168.100.30";
 
+
+  console.log("User:", user.email);
+
+  const faireDon = (cagnotte) => {
+      Alert.alert(
+        "💰 Faire un don",
+        `${cagnotte.titre}\n\nCollecte actuelle: ${cagnotte.collecte.toLocaleString()} / ${cagnotte.objectif.toLocaleString()} DH\nProgression: ${cagnotte.pourcentage.toFixed(1)}%`,
+        [
+          { text: "Annuler", style: "cancel" },
+          { text: "50 DH", onPress: () => processDon(cagnotte, 50) },
+          { text: "100 DH", onPress: () => processDon(cagnotte, 100) },
+          { text: "250 DH", onPress: () => processDon(cagnotte, 250) },
+          { text: "Montant personnalisé", onPress: () => showCustomDon(cagnotte) }
+        ]
+      );
+    };
   
+  
+    const showCustomDon = (cagnotte) => {
+      Alert.prompt(
+        "Montant personnalisé",
+        "Entrez le montant en DH:",
+        (montantText) => {
+          const montant = parseFloat(montantText);
+          if (montant && montant > 0) {
+            processDon(cagnotte, montant);
+          } else {
+            Alert.alert("Erreur", "Montant invalide");
+          }
+        },
+        "plain-text",
+        "",
+        "numeric"
+      );
+    };
+  
+
+  const processDon = async (cagnotte, montant) => {
+      const don = {
+        id: "",                    // laissé vide, Mongo va créer _id
+        montant: montant,
+        message: null,             // ou une chaîne si tu veux ajouter un message
+        date_don: null,            // le backend mettra datetime.utcnow()
+        cagnotte_id: cagnotte.id   // important pour matcher le modèle
+      };
+  
+      try {
+        const response = await fetch(`http://${ip}:8000/cagnottes/${cagnotte.id}/don`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(don)
+        });
+  
+        const text = await response.text();
+  
+        if (response.ok) {
+          Alert.alert("✅ Merci !", `Votre don de ${montant} DH a été enregistré !`);
+        } else {
+          console.log('DON ERROR STATUS', response.status);
+          console.log('DON ERROR BODY', text);
+          Alert.alert("❌ Erreur", `Problème lors du traitement du don (code ${response.status})`);
+        }
+      } catch (error) {
+        console.log('DON FETCH ERROR', error);
+        Alert.alert("❌ Erreur", "Connexion impossible");
+      }
+    };
 
   // 3️⃣ Function to send messages
   const { ws, userId } = useWebSocket();
- 
+
   // Check if permissions are still loading
   if (!permission) {
     return (
@@ -37,26 +106,66 @@ export default function QrScanner() {
   }
 
   // Handle barcode scan
-   const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = async ({ type, data }) => {
     if (scannedRef.current) return; // debounce
+    scannedRef.current = true;
 
-    scannedRef.current = true; // mark scanned
     setScannedData({ type, data });
 
-    // Send over WebSocket if open
+    // 🟢 1) If it's a campaign QR
+    if (data.startsWith("CAMP:")) {
+      const campaignId = data.replace("CAMP:", "");
+      const res = await fetch(`http://${ip}:8000/cagnottes/${campaignId}`);
+      const cagnotte = await res.json();
+
+      Alert.alert(
+        "🎯 Cagnotte détectée",
+        `Voulez-vous ouvrir cette cagnotte ?\n\nName: ${cagnotte.titre}\nDescription: ${cagnotte.description}`,
+        [
+          { text: "Annuler", style: "cancel", onPress: () => (scannedRef.current = false) },
+          {
+  text: "Ouvrir",
+  onPress: async () => {
+    try {
+      const res = await fetch(`http://${ip}:8000/cagnottes/${campaignId}`);
+      const cagnotte = await res.json();
+      faireDon(cagnotte)
+    } catch (e) {
+      Alert.alert("Erreur", "Impossible de charger la cagnotte"+e);
+      scannedRef.current = false;
+    }
+    scannedRef.current = false;
+
+  }
+}
+
+        ]
+      );
+      return;
+    }
+
+    // 🔵 2) Otherwise treat it as USER QR (your existing logic)
+    const message = {
+      target: data,
+      email: user.email
+    };
+
+    const messageString = JSON.stringify(message);
+
     if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(data);
-      console.log('Sent:', data);
+      ws.send(messageString);
+      console.log('Sent:', messageString);
     } else {
       console.log('WebSocket not ready', ws?.readyState);
       Alert.alert('WebSocket not connected');
     }
 
-    // Reset scan after 2 seconds to allow rescanning
+    // Reset scan after 2 seconds
     setTimeout(() => {
       scannedRef.current = false;
     }, 2000);
   };
+
 
   return (
     <View style={styles.container}>

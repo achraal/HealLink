@@ -1,4 +1,5 @@
 
+import json
 import uuid
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
@@ -86,12 +87,13 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
+            data_dict = json.loads(data)
             print(f"📩 {client_id}: {data}")
-            if(data in clients.keys()) : 
+            if(data_dict['target'] in clients.keys()) : 
                 print("AAAAAAAAAAAAAAAAAAAAAAAAA")
-                await clients[data].send_json({
+                await clients[data_dict['target']].send_json({
                     "type":"poke",
-                    "data" : "hey"
+                    "data" : data_dict['email']
                 })
             #await websocket.send_text(f"Server echo: {data}")
     except WebSocketDisconnect:
