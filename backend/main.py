@@ -202,6 +202,17 @@ async def faire_don(cagnotte_id: str, don: Don):
         "don_id": str(result_don.inserted_id),
         "nouveau_collecte": nouvelle_collecte,
     }
+    
+@app.get("/cagnottes/{cagnotte_id}")
+async def get_cagnotte(cagnotte_id: str):
+    try:
+        cagnotte = await cagnottes_collection.find_one({"_id": ObjectId(cagnotte_id)})
+    except Exception:
+        raise HTTPException(status_code=400, detail="Identifiant de cagnotte invalide")
+    if not cagnotte:
+        raise HTTPException(status_code=404, detail="Cagnotte non trouvée")
+    return cagnotte_helper(cagnotte)
+    
 
 @app.get("/dons")
 async def get_dons():
